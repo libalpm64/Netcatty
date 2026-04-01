@@ -764,18 +764,21 @@ export const createTerminalSessionStarters = (ctx: TerminalSessionStartersContex
     }
 
     try {
-      // Per-session shell from discovery takes priority over global setting
+      // Per-session shell (from QuickSwitcher discovery or split/copy) takes priority.
+      // The global terminalSettings.localShell may contain a shell ID (e.g., "wsl-ubuntu")
+      // which was already resolved to command+args and stored on the session object by App.tsx.
+      // Only pass shell/shellArgs when we have concrete per-session values;
+      // otherwise omit them so the backend uses its own default shell detection.
       const sessionShell = ctx.host.localShell;
       const sessionShellArgs = ctx.host.localShellArgs;
-      const localShell = sessionShell || ctx.terminalSettings?.localShell;
       const localStartDir = ctx.terminalSettings?.localStartDir;
 
       const id = await ctx.terminalBackend.startLocalSession({
         sessionId: ctx.sessionId,
         cols: term.cols,
         rows: term.rows,
-        shell: localShell,
-        shellArgs: sessionShellArgs,
+        shell: sessionShell || undefined,
+        shellArgs: sessionShellArgs || undefined,
         cwd: localStartDir,
         env: {
           TERM: ctx.terminalSettings?.terminalEmulationType ?? "xterm-256color",

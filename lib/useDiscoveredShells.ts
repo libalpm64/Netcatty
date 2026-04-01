@@ -34,19 +34,11 @@ export function useDiscoveredShells(): DiscoveredShell[] {
 }
 
 /**
- * Check whether a localShell value looks like a file path (custom entry)
- * rather than a discovered shell ID. Paths contain slashes or backslashes,
- * or end with common executable extensions.
- */
-function looksLikePath(value: string): boolean {
-  return /[/\\]/.test(value) || /\.\w+$/.test(value);
-}
-
-/**
  * Resolve a localShell setting value to shell command and args.
  * The value can be a discovered shell id (e.g., "wsl-ubuntu", "pwsh")
- * or a custom path (e.g., "/usr/local/bin/fish").
- * Returns { command, args } or null if unresolved / discovery not ready.
+ * or a custom path/command (e.g., "/usr/local/bin/fish" or "fish").
+ * Returns { command, args } or null when discovery hasn't loaded yet
+ * and the value might be a shell ID that can't be resolved yet.
  */
 export function resolveShellSetting(
   localShell: string,
@@ -60,14 +52,19 @@ export function resolveShellSetting(
     return { command: shell.command, args: shell.args };
   }
 
-  // If it looks like a file path, treat as custom shell (backward compat)
-  if (looksLikePath(localShell)) {
+  // If discovery has loaded (non-empty list) and no ID matched,
+  // this is a custom value — pass it through as-is.
+  if (discoveredShells.length > 0) {
     return { command: localShell };
   }
 
-  // Value looks like a shell ID but discovery hasn't loaded yet or no match.
-  // Return null so the caller falls back to the system default shell,
-  // rather than trying to execute an ID string like "wsl-ubuntu" as a command.
+  // Discovery hasn't loaded yet. If the value looks like a path or bare
+  // executable (no hyphens — shell IDs like "wsl-ubuntu" always have hyphens),
+  // pass through. Otherwise return null to use the system default.
+  if (/[/\\]/.test(localShell) || !/\-/.test(localShell)) {
+    return { command: localShell };
+  }
+
   return null;
 }
 

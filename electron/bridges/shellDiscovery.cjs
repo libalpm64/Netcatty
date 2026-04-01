@@ -565,10 +565,10 @@ function discoverUnixShells() {
   for (const shellPath of validPaths) {
     const base = path.basename(shellPath);
     const args = isLoginShell(base) ? ["-l"] : [];
-    // Use basename as id when unique, otherwise include parent dir to disambiguate
+    // Use basename as id when unique, otherwise use path slug to guarantee uniqueness
     const needsDisambiguation = baseCount.get(base) > 1;
     const id = needsDisambiguation
-      ? `${base}-${path.basename(path.dirname(shellPath))}`
+      ? shellPath.replace(/^\/+/, "").replace(/[/\\]+/g, "-")
       : base;
     const name = needsDisambiguation
       ? `${mapUnixShellName(base)} (${shellPath})`
@@ -593,7 +593,7 @@ function discoverUnixShells() {
         // Check if basename already exists in the list to disambiguate
         const hasDuplicate = shells.some((s) => path.basename(s.command) === base);
         const id = hasDuplicate
-          ? `${base}-${path.basename(path.dirname(envShell))}`
+          ? envShell.replace(/^\/+/, "").replace(/[/\\]+/g, "-")
           : base;
         const name = hasDuplicate
           ? `${mapUnixShellName(base)} (${envShell})`
