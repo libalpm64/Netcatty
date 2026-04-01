@@ -1605,6 +1605,14 @@ const HostDetailsPanel: React.FC<HostDetailsPanelProps> = ({
               </p>
             </div>
           )}
+          <ToggleRow
+            label={t("hostDetails.backspaceSendsCtrlH")}
+            enabled={!!form.backspaceSendsCtrlH}
+            onToggle={() => update("backspaceSendsCtrlH", !form.backspaceSendsCtrlH)}
+          />
+          <p className="text-xs text-muted-foreground break-words">
+            {t("hostDetails.backspaceSendsCtrlH.desc")}
+          </p>
         </Card>
 
         {/* Proxy via Hosts (Jump Hosts / ProxyJump) */}

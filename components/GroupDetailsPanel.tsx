@@ -99,7 +99,7 @@ const GroupDetailsPanel: React.FC<GroupDetailsPanelProps> = ({
     c.protocol === 'ssh' ||
     c.port !== undefined || !!c.username || !!c.password || !!c.identityFileId ||
     c.agentForwarding !== undefined || c.authMethod !== undefined || !!c.identityId ||
-    !!c.proxyConfig || !!c.hostChain || !!c.startupCommand || c.legacyAlgorithms !== undefined ||
+    !!c.proxyConfig || !!c.hostChain || !!c.startupCommand || c.legacyAlgorithms !== undefined || c.backspaceSendsCtrlH !== undefined ||
     (c.environmentVariables && c.environmentVariables.length > 0) ||
     c.moshEnabled !== undefined || !!c.moshServerPath ||
     (c.identityFilePaths && c.identityFilePaths.length > 0);
@@ -149,6 +149,7 @@ const GroupDetailsPanel: React.FC<GroupDetailsPanelProps> = ({
       delete next.agentForwarding;
       delete next.startupCommand;
       delete next.legacyAlgorithms;
+      delete next.backspaceSendsCtrlH;
       delete next.proxyConfig;
       delete next.hostChain;
       delete next.environmentVariables;
@@ -305,6 +306,7 @@ const GroupDetailsPanel: React.FC<GroupDetailsPanelProps> = ({
         ...(form.agentForwarding !== undefined && { agentForwarding: form.agentForwarding }),
         ...(form.startupCommand !== undefined && { startupCommand: form.startupCommand }),
         ...(form.legacyAlgorithms !== undefined && { legacyAlgorithms: form.legacyAlgorithms }),
+        ...(form.backspaceSendsCtrlH !== undefined && { backspaceSendsCtrlH: form.backspaceSendsCtrlH }),
         ...(form.proxyConfig !== undefined && { proxyConfig: form.proxyConfig }),
         ...(form.hostChain !== undefined && { hostChain: form.hostChain }),
         ...(form.environmentVariables !== undefined && { environmentVariables: form.environmentVariables }),
@@ -797,6 +799,13 @@ const GroupDetailsPanel: React.FC<GroupDetailsPanelProps> = ({
               label={t("hostDetails.legacyAlgorithms")}
               enabled={!!form.legacyAlgorithms}
               onToggle={() => update("legacyAlgorithms", !form.legacyAlgorithms)}
+            />
+
+            {/* Backspace sends ^H */}
+            <ToggleRow
+              label={t("hostDetails.backspaceSendsCtrlH")}
+              enabled={!!form.backspaceSendsCtrlH}
+              onToggle={() => update("backspaceSendsCtrlH", !form.backspaceSendsCtrlH)}
             />
 
             {/* Proxy */}

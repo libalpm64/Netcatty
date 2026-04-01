@@ -562,7 +562,9 @@ export const createXTermRuntime = (ctx: CreateXTermRuntimeContext): XTermRuntime
         }
       } else {
         // Character mode (default): send immediately
-        ctx.terminalBackend.writeToSession(id, data);
+        // Remap DEL (0x7F) → BS (0x08) when host requests Backspace-sends-^H
+        const outData = (ctx.host.backspaceSendsCtrlH && data === "\x7f") ? "\x08" : data;
+        ctx.terminalBackend.writeToSession(id, outData);
 
         // Local echo for serial connections only when explicitly enabled
         if (ctx.host.protocol === "serial" && ctx.serialLocalEcho) {

@@ -117,6 +117,8 @@ export interface Host {
   keywordHighlightEnabled?: boolean;
   // Legacy SSH algorithm support for older network equipment (switches, routers)
   legacyAlgorithms?: boolean;
+  // Send ^H (0x08) instead of DEL (0x7F) when pressing Backspace
+  backspaceSendsCtrlH?: boolean;
   // Local SSH key file paths (from SSH config IdentityFile or user-added)
   // Resolved at connection time — the app reads the file content when connecting.
   identityFilePaths?: string[];
@@ -213,6 +215,7 @@ export interface GroupConfig {
   fontFamilyOverride?: boolean;
   fontSize?: number;
   fontSizeOverride?: boolean;
+  backspaceSendsCtrlH?: boolean;
 }
 
 export interface SyncConfig {
