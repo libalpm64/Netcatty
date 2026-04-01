@@ -52,20 +52,11 @@ export function resolveShellSetting(
     return { command: shell.command, args: shell.args };
   }
 
-  // Check if the value looks like a file path or bare executable name
-  const looksLikePath = /[/\\]/.test(localShell);
-  const looksLikeShellId = /-/.test(localShell) && !looksLikePath;
-
-  if (discoveredShells.length > 0) {
-    // Discovery loaded. If value looks like a path/executable, pass through as custom.
-    // If it looks like a shell ID (has hyphens, e.g. "wsl-ubuntu") but didn't match,
-    // it's stale/unavailable — return null to fall back to system default.
-    return looksLikeShellId ? null : { command: localShell };
-  }
-
-  // Discovery hasn't loaded yet. Pass through paths and bare names,
-  // but hold back shell-ID-like values until discovery completes.
-  return looksLikeShellId ? null : { command: localShell };
+  // No ID match — treat as a custom shell path/command and pass through.
+  // This handles both custom executables (e.g., "/usr/local/bin/fish", "pwsh-preview")
+  // and stale/synced IDs that no longer exist on this machine (graceful fallback
+  // to whatever the OS resolves the name to, or a spawn error the user can see).
+  return { command: localShell };
 }
 
 const DISTRO_ICONS = new Set([
