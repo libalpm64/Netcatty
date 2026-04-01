@@ -253,8 +253,20 @@ function startLocalSession(event, payload) {
     payload?.sessionId ||
     `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   const defaultShell = getDefaultLocalShell();
-  const shell = normalizeExecutablePath(payload?.shell) || defaultShell;
-  const shellArgs = payload?.shellArgs ?? getLocalShellArgs(shell);
+  // payload.shell may be a discovered shell ID (e.g., "wsl-ubuntu") — resolve it
+  let resolvedShell = payload?.shell;
+  let resolvedArgs = payload?.shellArgs;
+  if (resolvedShell && !/[/\\]/.test(resolvedShell)) {
+    // Looks like a shell ID, not a path — try to resolve from discovery cache
+    const shells = discoverShells();
+    const match = shells.find((s) => s.id === resolvedShell);
+    if (match) {
+      resolvedShell = match.command;
+      resolvedArgs = resolvedArgs ?? match.args;
+    }
+  }
+  const shell = normalizeExecutablePath(resolvedShell) || defaultShell;
+  const shellArgs = resolvedArgs ?? getLocalShellArgs(shell);
   const shellKind = detectShellKind(shell);
   const env = applyLocaleDefaults({
     ...process.env,
