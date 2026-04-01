@@ -10,7 +10,7 @@ import { getEffectiveHostDistro } from '../domain/host';
 import { cn } from '../lib/utils';
 import { Host, TerminalSession, Workspace } from '../types';
 import { DISTRO_LOGOS, DISTRO_COLORS } from './DistroAvatar';
-import { getShellIconPath } from '../lib/useDiscoveredShells';
+import { getShellIconPath, isMonochromeShellIcon } from '../lib/useDiscoveredShells';
 import { Button } from './ui/button';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from './ui/context-menu';
 import { SyncStatusButton } from './SyncStatusButton';
@@ -79,7 +79,7 @@ const SessionTabIcon: React.FC<{ host: Host | undefined; isActive: boolean; prot
           <img
             src={getShellIconPath(iconId)}
             alt={iconId}
-            className={cn(iconSize, "object-contain")}
+            className={cn(iconSize, "object-contain", isMonochromeShellIcon(iconId) && "dark:invert")}
           />
         </div>
       );

@@ -10,7 +10,7 @@ import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "
 import { useI18n } from "../application/i18n/I18nProvider";
 import { Host, TerminalSession, Workspace } from "../types";
 import { KeyBinding } from "../domain/models";
-import { useDiscoveredShells, getShellIconPath } from "../lib/useDiscoveredShells";
+import { useDiscoveredShells, getShellIconPath, isMonochromeShellIcon } from "../lib/useDiscoveredShells";
 
 type QuickSwitcherItem = {
   type: "host" | "tab" | "workspace" | "action" | "shell";
@@ -428,7 +428,7 @@ const QuickSwitcherInner: React.FC<QuickSwitcherProps> = ({
                         <img
                           src={getShellIconPath(shell.icon)}
                           alt={shell.name}
-                          className="h-5 w-5"
+                          className={`h-5 w-5${isMonochromeShellIcon(shell.icon) ? " dark:invert" : ""}`}
                         />
                       </div>
                       <span className="text-sm font-medium">{shell.name}</span>

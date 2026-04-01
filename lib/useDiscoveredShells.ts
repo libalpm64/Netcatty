@@ -79,3 +79,8 @@ export function getShellIconPath(iconId: string): string {
   }
   return `/shells/${iconId}.svg`;
 }
+
+/** Distro icons are monochrome black and need `dark:invert` in dark mode */
+export function isMonochromeShellIcon(iconId: string): boolean {
+  return DISTRO_ICONS.has(iconId);
+}
