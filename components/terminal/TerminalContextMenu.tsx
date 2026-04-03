@@ -10,7 +10,7 @@ import {
   Terminal as TerminalIcon,
   Trash2,
 } from 'lucide-react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useI18n } from '../../application/i18n/I18nProvider';
 import { KeyBinding, RightClickBehavior } from '../../domain/models';
 import {
@@ -77,11 +77,20 @@ export const TerminalContextMenu: React.FC<TerminalContextMenuProps> = ({
 
   const showContextMenu = rightClickBehavior === 'context-menu' && !isAlternateScreen;
 
+  // Track whether Shift+Right-Click should force the context menu open
+  const [forceMenu, setForceMenu] = useState(false);
+
   const handleRightClick = useCallback(
     (e: React.MouseEvent) => {
       // In alternate screen (tmux, vim, etc.), let the terminal application
       // handle right-click natively to avoid conflicting menus
       if (isAlternateScreen) return;
+
+      // Shift+Right-Click always opens the context menu, regardless of rightClickBehavior
+      if (e.shiftKey) {
+        setForceMenu(true);
+        return; // Let the ContextMenuTrigger handle the event
+      }
 
       if (rightClickBehavior === 'paste') {
         e.preventDefault();
@@ -96,18 +105,25 @@ export const TerminalContextMenu: React.FC<TerminalContextMenuProps> = ({
     [rightClickBehavior, onPaste, onSelectWord, isAlternateScreen],
   );
 
+  const menuEnabled = showContextMenu || forceMenu;
+
+  // Reset forceMenu when the menu closes
+  const handleOpenChange = useCallback((open: boolean) => {
+    if (!open) setForceMenu(false);
+  }, []);
+
   // Always use ContextMenu wrapper to maintain consistent React tree structure
   // This prevents terminal from unmounting when rightClickBehavior changes
   return (
-    <ContextMenu>
+    <ContextMenu onOpenChange={handleOpenChange}>
       <ContextMenuTrigger
         asChild
-        disabled={!showContextMenu}
-        onContextMenu={!showContextMenu ? handleRightClick : undefined}
+        disabled={!menuEnabled}
+        onContextMenu={!menuEnabled ? handleRightClick : handleRightClick}
       >
         {children}
       </ContextMenuTrigger>
-      {showContextMenu && (
+      {menuEnabled && (
         <ContextMenuContent className="w-56">
           <ContextMenuItem onClick={onCopy} disabled={!hasSelection}>
             <Copy size={14} className="mr-2" />
