@@ -267,6 +267,15 @@ const VaultViewInner: React.FC<VaultViewProps> = ({
   const [editingHost, setEditingHost] = useState<Host | null>(null);
   const [newHostGroupPath, setNewHostGroupPath] = useState<string | null>(null);
 
+  // Close host panel if the host being edited was deleted
+  useEffect(() => {
+    if (editingHost && !hosts.find(h => h.id === editingHost.id)) {
+      setIsHostPanelOpen(false);
+      setEditingHost(null);
+      setNewHostGroupPath(null);
+    }
+  }, [hosts, editingHost]);
+
   // Group panel state
   const [isGroupPanelOpen, setIsGroupPanelOpen] = useState(false);
   const [editingGroupPath, setEditingGroupPath] = useState<string | null>(null);
